@@ -2,7 +2,6 @@ require_relative 'base_page'
 
 class LoginPage < BasePage
   URL_PATH = '/'.freeze
-  # Locators (using IDs and specific CSS selectors for robustness)
   EMAIL_FIELD_ID = 'user_email'.freeze
   PASSWORD_FIELD_ID = 'user_password'.freeze
   SIGN_IN_BTN_ID = "submitBtn".freeze

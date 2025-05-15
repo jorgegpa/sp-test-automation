@@ -9,6 +9,8 @@ This project contains automated UI tests for the SimplePractice application, foc
 - [Setup Instructions](#setup-instructions)
 - [Environment Variables](#environment-variables)
 - [Running the Tests](#running-the-tests)
+- [Continuous Integration (CI) with GitHub Actions](#continuous-integration-ci-with-github-actions)
+- [Viewing Allure Test Reports](#viewing-allure-test-reports)
 - [Project Structure](#project-structure)
 
 ## Tech Stack
@@ -21,6 +23,7 @@ This project contains automated UI tests for the SimplePractice application, foc
 *   **Faker**: Gem for generating fake data (e.g., names, emails)
 *   **Dotenv**: Gem for loading environment variables from a `.env` file
 *   **Bundler**: Manages Ruby gem dependencies
+*   **Allure RSpec**: Gem for generating Allure test reports
 
 ## Prerequisites
 
@@ -29,13 +32,13 @@ Before you begin, ensure you have the following installed on your system:
 1.  **Ruby**: It's recommended to use a Ruby version manager like `rbenv` or `RVM`.
 2.  **Bundler**: Install Bundler gem: `gem install bundler`
 3.  **Google Chrome**: The tests are configured to run with Chrome by default.
+4.  **Allure Commandline (Optional, for local report viewing)**: If you want to view reports locally, install Allure. (e.g., `brew install allure` on macOS).
 
 ## Setup Instructions
 
 1.  **Clone the Repository**:
     ```bash
-    git clone <your-repository-url>
-    cd SimplePracticeTestAuto
+    git clone https://github.com/jorgegpa/sp-test-automation
     ```
 
 2.  **Install Dependencies**:
@@ -65,7 +68,7 @@ To execute the test suite, run the following command from the project's root dir
 bundle exec rspec
 ```
 
-This will run all spec files located in the `./spec` directory.
+This will run all spec files located in the `./spec` directory and generate raw Allure result files in the `./allure-results` directory.
 
 You can also run specific spec files (relative to the project root):
 
@@ -73,6 +76,39 @@ You can also run specific spec files (relative to the project root):
 bundle exec rspec ./spec/client_spec.rb
 bundle exec rspec ./spec/login_spec.rb
 ```
+
+## Continuous Integration (CI) with GitHub Actions
+
+This project is configured to run tests automatically using GitHub Actions on every push to the `main` branch and on pull requests targeting `main`.
+
+The workflow is defined in `./.github/workflows/ci.yml`.
+
+**Key CI Steps:**
+1.  Checks out the code.
+2.  Sets up Ruby and installs dependencies (gems).
+3.  Installs Google Chrome.
+4.  Runs RSpec tests (generating Allure results).
+5.  Generates an Allure HTML report from the results.
+6.  Uploads the Allure report as a build artifact.
+
+**Required GitHub Secrets for CI:**
+For the CI pipeline to run successfully, the following secrets must be configured in your GitHub repository settings (Settings > Secrets and variables > Actions):
+*   `SIMPLEPRACTICE_VALID_EMAIL`
+*   `SIMPLEPRACTICE_VALID_PASSWORD`
+
+## Viewing Allure Test Reports
+
+### Locally
+1.  Ensure you have Allure Commandline installed.
+2.  Run your tests: `bundle exec rspec`
+3.  Generate the report: `allure generate allure-results --clean -o allure-report`
+4.  Open the report: `allure open allure-report`
+
+### From GitHub Actions
+1.  Navigate to the "Actions" tab in your GitHub repository.
+2.  Select the desired workflow run.
+3.  On the run's summary page, download the `allure-report` artifact (it will be a ZIP file).
+4.  Unzip the downloaded file and open the `index.html` file in your browser.
 
 ## Project Structure
 
@@ -86,9 +122,12 @@ A brief overview of the key directories (relative to the project root):
     *   `clients_page.rb`: Interactions for the clients listing/search page.
 *   `./lib/constants/`: Contains constant values used across the tests (e.g., error messages).
 *   `./spec/`: Contains the RSpec test files (specs).
-    *   `spec_helper.rb`: RSpec configuration, Capybara setup, and requires for page objects and constants.
+    *   `spec_helper.rb`: RSpec configuration, Capybara setup, and Allure formatter configuration.
     *   `login_spec.rb`: Tests for the login functionality.
     *   `client_spec.rb`: Tests for client creation and verification.
 *   `Gemfile` & `Gemfile.lock`: Define and lock project dependencies.
+*   `./.github/workflows/ci.yml`: GitHub Actions workflow definition for CI.
 *   `.env`: (You create this) Stores environment variables (e.g., credentials).
+*   `allure-results/`: (Generated) Directory for raw Allure JSON results.
+*   `allure-report/`: (Generated locally) Directory for the HTML Allure report when generated locally.
 *   `README.md`: (This file) Project overview and instructions.
