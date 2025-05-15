@@ -1,0 +1,11 @@
+source 'https://rubygems.org'
+
+gem 'rspec', '~> 3.12'
+gem 'capybara', '~> 3.39'
+gem 'selenium-webdriver', '~> 4.10.0'        
+gem 'pry'
+gem 'faker', '~> 3.2'
+gem 'dotenv', '~> 2.8'
+gem 'webdrivers', '~> 5.3'
+gem 'base64'
+gem 'logger'
