@@ -15,13 +15,27 @@ Dir[File.expand_path('../lib/pages/**/*.rb', __dir__)].sort.each { |f| require f
 # Require all constants files
 Dir[File.expand_path('../lib/constants/**/*.rb', __dir__)].sort.each { |f| require f }
 
+# Capybara configuration
 Capybara.configure do |config|
-  config.default_driver = :selenium_chrome # Use Chrome
-  # For headless Chrome, use:
-  # config.default_driver = :selenium_chrome_headless
   config.app_host = 'https://secure.simplepractice.com'
   config.default_max_wait_time = 10 # Default wait time for elements to appear
 end
+
+Capybara.register_driver :selenium_chrome_custom do |app|
+  options = Selenium::WebDriver::Chrome::Options.new
+
+  if ENV['CI'] == 'true'
+    options.add_argument('--headless')
+    options.add_argument('--disable-gpu') # Often recommended for headless
+  end
+
+  options.add_argument('--no-sandbox') # Often needed in CI environments
+  options.add_argument('--disable-dev-shm-usage') # Overcomes limited resource problems
+  options.add_argument('--window-size=1920,1080') # Set a reasonable window size
+  Capybara::Selenium::Driver.new(app, browser: :chrome, options: options)
+end
+
+Capybara.default_driver = :selenium_chrome_custom # Use our custom Chrome driver
 
 RSpec.configure do |config|
   config.include Capybara::DSL
